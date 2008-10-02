@@ -1,0 +1,47 @@
+NAME
+    B::Hooks::OP::Check - Wrap OP check callbacks
+
+SYNOPSIS
+        # include "hook_op_check.h"
+
+        STATIC OP *my_const_check_op (pTHX_ OP *op) {
+            /* ... */
+            return op;
+        }
+
+        void
+        setup ()
+            CODE:
+                hook_op_check (OP_CONST, my_const_check_op);
+
+BIG FAT WARNING
+    This is ALPHA software. Things may change. Use at your own risk.
+
+DESCRIPTION
+    This module provides a c api for XS modules to hook into the callbacks
+    of "PL_check".
+
+    ExtUtils::Depends is used to export all functions for other XS modules
+    to use. Include the following in your Makefile.PL:
+
+        my $pkg = ExtUtils::Depends->new('Your::XSModule', 'B::Hooks::OP::Check');
+        WriteMakefile(
+            ... # your normal makefile flags
+            $pkg->get_makefile_vars,
+        );
+
+    Your XS module can now include "hook_op_check.h".
+
+FUNCTIONS
+  void hook_op_check (opcode type, Perl_check_t cb)
+    Register the callback "cb" to be called after the "PL_check" function
+    for opcodes of the given "type".
+
+AUTHOR
+    Florian Ragwitz <rafl@debian.org>
+
+COPYRIGHT AND LICENSE
+    This module is free software.
+
+    You may distribute this code under the same terms as Perl itself.
+
