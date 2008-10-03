@@ -5,7 +5,7 @@ package B::Hooks::OP::Check;
 
 use parent qw/DynaLoader/;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub dl_load_flags { 0x01 }
 
@@ -52,9 +52,15 @@ use. Include the following in your Makefile.PL:
 
 Your XS module can now include C<hook_op_check.h>.
 
+=head1 TYPES
+
+=head2 typedef OP *(*hook_op_check_cb) (pTHX_ OP *);
+
+Type that callbacks need to implement. Same as Perl_check_t in newer perls.
+
 =head1 FUNCTIONS
 
-=head2 void hook_op_check (opcode type, Perl_check_t cb)
+=head2 void hook_op_check (opcode type, hook_op_check_cb cb)
 
 Register the callback C<cb> to be called after the C<PL_check> function for
 opcodes of the given C<type>.
@@ -64,6 +70,8 @@ opcodes of the given C<type>.
 Florian Ragwitz E<lt>rafl@debian.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2008 Florian Ragwitz
 
 This module is free software.
 

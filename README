@@ -32,8 +32,13 @@ DESCRIPTION
 
     Your XS module can now include "hook_op_check.h".
 
+TYPES
+  typedef OP *(*hook_op_check_cb) (pTHX_ OP *);
+    Type that callbacks need to implement. Same as Perl_check_t in newer
+    perls.
+
 FUNCTIONS
-  void hook_op_check (opcode type, Perl_check_t cb)
+  void hook_op_check (opcode type, hook_op_check_cb cb)
     Register the callback "cb" to be called after the "PL_check" function
     for opcodes of the given "type".
 
@@ -41,6 +46,8 @@ AUTHOR
     Florian Ragwitz <rafl@debian.org>
 
 COPYRIGHT AND LICENSE
+    Copyright (c) 2008 Florian Ragwitz
+
     This module is free software.
 
     You may distribute this code under the same terms as Perl itself.
