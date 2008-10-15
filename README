@@ -4,7 +4,7 @@ NAME
 SYNOPSIS
         # include "hook_op_check.h"
 
-        STATIC OP *my_const_check_op (pTHX_ OP *op) {
+        STATIC OP *my_const_check_op (pTHX_ OP *op, void *user_data) {
             /* ... */
             return op;
         }
@@ -12,10 +12,7 @@ SYNOPSIS
         void
         setup ()
             CODE:
-                hook_op_check (OP_CONST, my_const_check_op);
-
-BIG FAT WARNING
-    This is ALPHA software. Things may change. Use at your own risk.
+                hook_op_check (OP_CONST, my_const_check_op, NULL);
 
 DESCRIPTION
     This module provides a c api for XS modules to hook into the callbacks
@@ -33,12 +30,11 @@ DESCRIPTION
     Your XS module can now include "hook_op_check.h".
 
 TYPES
-  typedef OP *(*hook_op_check_cb) (pTHX_ OP *);
-    Type that callbacks need to implement. Same as Perl_check_t in newer
-    perls.
+  typedef OP *(*hook_op_check_cb) (pTHX_ OP *, void *);
+    Type that callbacks need to implement.
 
 FUNCTIONS
-  void hook_op_check (opcode type, hook_op_check_cb cb)
+  void hook_op_check (opcode type, hook_op_check_cb cb, void *user_data)
     Register the callback "cb" to be called after the "PL_check" function
     for opcodes of the given "type".
 

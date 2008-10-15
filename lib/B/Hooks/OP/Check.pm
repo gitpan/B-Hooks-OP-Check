@@ -5,7 +5,7 @@ package B::Hooks::OP::Check;
 
 use parent qw/DynaLoader/;
 
-our $VERSION = '0.03';
+our $VERSION = '0.10';
 
 sub dl_load_flags { 0x01 }
 
@@ -22,7 +22,7 @@ B::Hooks::OP::Check - Wrap OP check callbacks
 
     # include "hook_op_check.h"
 
-    STATIC OP *my_const_check_op (pTHX_ OP *op) {
+    STATIC OP *my_const_check_op (pTHX_ OP *op, void *user_data) {
         /* ... */
         return op;
     }
@@ -30,11 +30,7 @@ B::Hooks::OP::Check - Wrap OP check callbacks
     void
     setup ()
         CODE:
-            hook_op_check (OP_CONST, my_const_check_op);
-
-=head1 BIG FAT WARNING
-
-This is B<ALPHA> software. Things may change. Use at your own risk.
+            hook_op_check (OP_CONST, my_const_check_op, NULL);
 
 =head1 DESCRIPTION
 
@@ -54,13 +50,13 @@ Your XS module can now include C<hook_op_check.h>.
 
 =head1 TYPES
 
-=head2 typedef OP *(*hook_op_check_cb) (pTHX_ OP *);
+=head2 typedef OP *(*hook_op_check_cb) (pTHX_ OP *, void *);
 
-Type that callbacks need to implement. Same as Perl_check_t in newer perls.
+Type that callbacks need to implement.
 
 =head1 FUNCTIONS
 
-=head2 void hook_op_check (opcode type, hook_op_check_cb cb)
+=head2 void hook_op_check (opcode type, hook_op_check_cb cb, void *user_data)
 
 Register the callback C<cb> to be called after the C<PL_check> function for
 opcodes of the given C<type>.
