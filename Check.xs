@@ -13,6 +13,17 @@ STATIC AV *check_cbs[OP_max];
 
 STATIC UV initialized = 0;
 
+STATIC void *
+get_mg_ptr (SV *sv) {
+	MAGIC *mg;
+
+	if ((mg = mg_find (sv, PERL_MAGIC_ext))) {
+		return mg->mg_ptr;
+	}
+
+	return NULL;
+}
+
 STATIC void
 setup () {
 	if (initialized) {
@@ -37,17 +48,14 @@ check_cb (pTHX_ OP *op) {
 
 	for (i = 0; i <= av_len (hooks); i++) {
 		hook_op_check_cb cb;
-		MAGIC *mg;
-		void *user_data = NULL;
+		void *user_data;
 		SV **hook = av_fetch (hooks, i, 0);
 
 		if (!hook || !*hook) {
 			continue;
 		}
 
-		if ((mg = mg_find (*hook, PERL_MAGIC_ext))) {
-			user_data = (void *)mg->mg_ptr;
-		}
+		user_data = get_mg_ptr (*hook);
 
 		cb = INT2PTR (hook_op_check_cb, SvUV (*hook));
 		ret = CALL_FPTR (cb)(aTHX_ ret, user_data);
@@ -56,7 +64,7 @@ check_cb (pTHX_ OP *op) {
 	return ret;
 }
 
-void
+hook_op_check_id
 hook_op_check (opcode type, hook_op_check_cb cb, void *user_data) {
 	AV *hooks;
 	SV *hook;
@@ -76,6 +84,40 @@ hook_op_check (opcode type, hook_op_check_cb cb, void *user_data) {
 	hook = newSVuv (PTR2UV (cb));
 	sv_magic (hook, NULL, PERL_MAGIC_ext, (const char *)user_data, 0);
 	av_push (hooks, hook);
+
+	return (hook_op_check_id)PTR2UV (hook);
+}
+
+void *
+hook_op_check_remove (opcode type, hook_op_check_id id) {
+	AV *hooks;
+	I32 i;
+	void *ret = NULL;
+
+	if (!initialized) {
+		return NULL;
+	}
+
+	hooks = check_cbs[type];
+
+	if (!hooks) {
+		return NULL;
+	}
+
+	for (i = 0; i <= av_len (hooks); i++) {
+		SV **hook = av_fetch (hooks, i, 0);
+
+		if (!hook && !*hook) {
+			continue;
+		}
+
+		if ((hook_op_check_id)PTR2UV (*hook) == id) {
+			ret = get_mg_ptr (*hook);
+			av_delete (hooks, i, G_DISCARD);
+		}
+	}
+
+	return ret;
 }
 
 MODULE = B::Hooks::OP::Check  PACKAGE = B::Hooks::OP::Check
