@@ -3,9 +3,10 @@ use warnings;
 
 package B::Hooks::OP::Check;
 
+require 5.008001;
 use parent qw/DynaLoader/;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 
 sub dl_load_flags { 0x01 }
 
