@@ -11,6 +11,7 @@ all_from 'lib/B/Hooks/OP/Check.pm';
 
 requires 'parent';
 configure_requires 'ExtUtils::Depends';
+test_requires 'Test::More';
 
 my $pkg = ExtUtils::Depends->new('B::Hooks::OP::Check');
 $pkg->install('hook_op_check.h');
@@ -26,6 +27,9 @@ makemaker_args(
     DL_FUNCS => { 'B::Hooks::OP::Check' => [] },
     dist => { PREOP => 'pod2text lib/B/Hooks/OP/Check.pm > $(DISTVNAME)/README' },
 );
+
+repository 'git://github.com/rafl/moosex-method-signatures.git';
+bugtracker 'http://rt.cpan.org/Public/Dist/Display.html?Name=B-Hooks-OP-Check';
 
 extra_tests;
 
