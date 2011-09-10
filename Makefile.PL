@@ -28,7 +28,7 @@ makemaker_args(
     dist => { PREOP => 'pod2text lib/B/Hooks/OP/Check.pm > $(DISTVNAME)/README' },
 );
 
-repository 'git://github.com/rafl/b-hooks-op-check.git';
+repository 'git://lake.fysh.org/zefram/B-Hooks-OP-Check.git';
 bugtracker 'http://rt.cpan.org/Public/Dist/Display.html?Name=B-Hooks-OP-Check';
 
 extra_tests;

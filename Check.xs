@@ -13,8 +13,6 @@ STATIC AV *check_cbs[OP_max];
 
 #define run_orig_check(type, op) (CALL_FPTR (orig_PL_check[(type)])(aTHX_ op))
 
-STATIC UV initialized = 0;
-
 STATIC void *
 get_mg_ptr (SV *sv) {
 	MAGIC *mg;
@@ -24,18 +22,6 @@ get_mg_ptr (SV *sv) {
 	}
 
 	return NULL;
-}
-
-STATIC void
-setup () {
-	if (initialized) {
-		return;
-	}
-
-	initialized = 1;
-
-	Copy (PL_check, orig_PL_check, OP_max, hook_op_check_cb);
-	Zero (check_cbs, OP_max, AV *);
 }
 
 STATIC OP *
@@ -71,15 +57,12 @@ hook_op_check (opcode type, hook_op_check_cb cb, void *user_data) {
 	AV *hooks;
 	SV *hook;
 
-	if (!initialized) {
-		setup ();
-	}
-
 	hooks = check_cbs[type];
 
 	if (!hooks) {
 		hooks = newAV ();
 		check_cbs[type] = hooks;
+		orig_PL_check[type] = PL_check[type];
 		PL_check[type] = check_cb;
 	}
 
@@ -95,10 +78,6 @@ hook_op_check_remove (opcode type, hook_op_check_id id) {
 	AV *hooks;
 	I32 i;
 	void *ret = NULL;
-
-	if (!initialized) {
-		return NULL;
-	}
 
 	hooks = check_cbs[type];
 
